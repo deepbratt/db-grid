@@ -83,26 +83,13 @@ Merges to `main` that touch `packages/db-grid/**` run **Publish `@deepbratt55/db
 | `BREAKING CHANGE` / `breaking:` | **major** |
 | anything else (default) | **patch** |
 
-### Auth (required) — `@deepbratt55/db-grid` + Trusted Publishing
+### Auth — repo secret `NPM_TOKEN`
 
-Package: **`@deepbratt55/db-grid`** under your personal npm user **`deepbratt55`** (no extra org).
+Package: **`@deepbratt55/db-grid`** (npm user `deepbratt55`).
 
-npm restricts Bypass-2FA tokens, so CI uses [Trusted Publishing](https://docs.npmjs.com/trusted-publishers/) (OIDC) with GitHub repo `deepbratt/db-grid`:
+CI publishes with the GitHub Actions secret **`NPM_TOKEN`** (granular token with publish + 2FA bypass for automation).
 
-1. Log into npm as **deepbratt55** → `npm whoami` must print `deepbratt55`.
-2. **One-time** local publish of `1.0.0` with authenticator OTP:
-   ```bash
-   npm run build -w @deepbratt55/db-grid
-   npm publish -w @deepbratt55/db-grid --access public --otp=YOUR_OTP
-   ```
-3. On https://www.npmjs.com/package/@deepbratt55/db-grid → **Settings → Trusted Publisher**:
-   - **GitHub user/org:** `deepbratt`
-   - **Repository:** `db-grid`
-   - **Workflow filename:** `publish.yml`
-   - Allow **`npm publish`**
-4. Remove `NPM_TOKEN` from GitHub secrets (unused / blocked for publish).
-
-Optional: **`RELEASE_GITHUB_TOKEN`** so version bumps can push to protected `main`.
+Optional: **`RELEASE_GITHUB_TOKEN`** so version bump commits can push to protected `main`.
 
 Manual run: Actions → **Publish @deepbratt55/db-grid** → Run workflow.
 
