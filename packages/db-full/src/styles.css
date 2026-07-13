@@ -1,0 +1,2 @@
+/* Re-export core grid styles when installing the full suite */
+@import '@deepbratt55/db-grid/styles.css';

@@ -1,0 +1,81 @@
+{
+  "name": "@deepbratt55/db-grid",
+  "version": "1.0.0",
+  "description": "Excel-like React data grid — formulas, clipboard, fill handle, sparklines, grouping, pivot, tree data, Excel export, SSRM. AG Grid–class UX. MIT.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles/db-grid.css"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node ../../scripts/copy-grid-css.mjs",
+    "prepublishOnly": "npm run build",
+    "dev": "tsc -p tsconfig.build.json --watch"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "typescript": "^5.8.2"
+  },
+  "keywords": [
+    "react",
+    "react-datagrid",
+    "data-grid",
+    "datagrid",
+    "excel",
+    "excel-like",
+    "spreadsheet",
+    "table",
+    "virtualization",
+    "ag-grid",
+    "ag-grid-alternative",
+    "typescript",
+    "formulas",
+    "clipboard",
+    "fill-handle",
+    "pivot",
+    "grouping",
+    "tree-data",
+    "sparklines",
+    "server-side-row-model",
+    "ssrm",
+    "excel-export",
+    "csv-export",
+    "fintech",
+    "trading",
+    "open-source",
+    "mit"
+  ],
+  "author": "DeepBratt <deepbratt@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepbratt/db-grid.git",
+    "directory": "packages/db-grid"
+  },
+  "bugs": {
+    "url": "https://github.com/deepbratt/db-grid/issues"
+  },
+  "homepage": "https://deepbratt.github.io/db-grid/"
+}

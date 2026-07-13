@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@deepbratt55/db-grid": ["../db-grid/src"],
+      "@db-grid/ui": ["../db-ui/src"]
+    }
+  },
+  "include": ["src"]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "db-grid-monorepo",
+  "version": "1.0.0",
+  "private": false,
+  "description": "db-grid — Excel-like React data grid (@deepbratt55/db-grid): formulas, clipboard, grouping, pivot, sparklines, SSRM",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently -n api,demo,license -c blue,green,magenta \"npm run dev -w @db-grid/api\" \"npm run dev -w @db-grid/demo\" \"npm run dev -w @db-grid/license-dashboard\"",
+    "dev:demo": "npm run dev -w @db-grid/demo",
+    "dev:api": "npm run dev -w @db-grid/api",
+    "dev:license": "npm run dev -w @db-grid/license-dashboard",
+    "build": "npm run build -w @deepbratt55/db-grid && npm run build -w @db-grid/ui && npm run build -w @db-grid/full && npm run build -w @db-grid/api && npm run build -w @db-grid/demo && npm run build -w @db-grid/license-dashboard",
+    "build:pages": "npm run build -w @db-grid/demo && node scripts/pages-spa-fallback.mjs",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:seed": "npm run seed -w @db-grid/api",
+    "typecheck": "tsc -b"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

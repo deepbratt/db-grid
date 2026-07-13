@@ -1,0 +1,103 @@
+name: Publish @deepbratt55/db-grid
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/db-grid/**'
+      - 'scripts/copy-grid-css.mjs'
+      - 'scripts/bump-core-version.mjs'
+      - '.github/workflows/publish.yml'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Force bump type (empty = auto from commits)
+        required: false
+        default: ''
+        type: choice
+        options:
+          - ''
+          - patch
+          - minor
+          - major
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          # Trusted publishing needs Node >= 22.14 and npm >= 11.5.1
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+
+      - name: Upgrade npm (OIDC trusted publishing)
+        run: npm install -g npm@latest
+
+      - name: Install
+        # Public deps only — do not use NPM_TOKEN here (bypass-2FA tokens are restricted).
+        run: npm ci
+
+      - name: Resolve next version
+        id: version
+        env:
+          FORCE_BUMP: ${{ github.event.inputs.bump || '' }}
+          BUMP_COMMIT_RANGE: ${{ github.event.before && github.event.before != '0000000000000000000000000000000000000000' && format('{0}..{1}', github.event.before, github.sha) || '' }}
+        run: |
+          VERSION=$(node scripts/bump-core-version.mjs)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Publishing @deepbratt55/db-grid@$VERSION"
+
+      - name: Build
+        run: npm run build -w @deepbratt55/db-grid
+
+      - name: Publish to npm (OIDC Trusted Publishing)
+        # Package: @deepbratt55/db-grid (npm user deepbratt55).
+        # Trusted Publisher: GitHub user deepbratt, repo db-grid, workflow publish.yml
+        # Do NOT set NODE_AUTH_TOKEN (bypass-2FA tokens are restricted).
+        run: |
+          if [ -f .npmrc ]; then
+            grep -v '_authToken' .npmrc > .npmrc.tmp || true
+            mv .npmrc.tmp .npmrc
+          fi
+          npm publish -w @deepbratt55/db-grid --access public
+
+      - name: Commit version + tag
+        continue-on-error: true
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/db-grid/package.json
+          git commit -m "chore(release): @deepbratt55/db-grid@${VERSION}" || exit 0
+          git tag "v${VERSION}" || true
+          git push origin "HEAD:${{ github.ref_name }}"
+          git push origin "v${VERSION}" || true
+
+      - name: GitHub Release
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          gh release create "v${VERSION}" \
+            --title "@deepbratt55/db-grid@${VERSION}" \
+            --notes "Automated publish from \`${GITHUB_SHA}\` on \`${GITHUB_REF_NAME}\`." \
+            --target "${GITHUB_SHA}" \
+            || true
