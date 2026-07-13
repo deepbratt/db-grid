@@ -43,15 +43,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          # Trusted publishing needs Node >= 22.14 and npm >= 11.5.1
-          node-version: '24'
+          node-version: '22'
           registry-url: https://registry.npmjs.org
-
-      - name: Upgrade npm (OIDC trusted publishing)
-        run: npm install -g npm@latest
+          cache: npm
 
       - name: Install
-        # Public deps only — do not use NPM_TOKEN here (bypass-2FA tokens are restricted).
         run: npm ci
 
       - name: Resolve next version
@@ -67,16 +63,10 @@ jobs:
       - name: Build
         run: npm run build -w @deepbratt55/db-grid
 
-      - name: Publish to npm (OIDC Trusted Publishing)
-        # Package: @deepbratt55/db-grid (npm user deepbratt55).
-        # Trusted Publisher: GitHub user deepbratt, repo db-grid, workflow publish.yml
-        # Do NOT set NODE_AUTH_TOKEN (bypass-2FA tokens are restricted).
-        run: |
-          if [ -f .npmrc ]; then
-            grep -v '_authToken' .npmrc > .npmrc.tmp || true
-            mv .npmrc.tmp .npmrc
-          fi
-          npm publish -w @deepbratt55/db-grid --access public
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish -w @deepbratt55/db-grid --access public
 
       - name: Commit version + tag
         continue-on-error: true
